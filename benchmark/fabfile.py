@@ -67,12 +67,12 @@ def repeatlocal(ctx):
                     'max_batch_delay': 200  # ms
                 }
 
-                print('n = ' + str(ps) + ', c= ' + str(c) +  ' [' + '*'*i + '-'*(repeats-i) + ']')
+                print('n = ' + str(ps) + ', f= ' + str(c) +  ' [' + '*'*i + '-'*(repeats-i) + ']')
 
                 try:
                     ret = LocalBench(bench_params, node_params).run(False)
                     print(ret.result())
-                    ret.print(join(PathMaker.results_path(), f"bench-bs-{c}-{ps}.txt"))
+                    ret.print(join('byzantine-results', f"bench-bs-{c}-{ps}.txt"))
 
                 except BenchError as e:
                     Print.error(e)
