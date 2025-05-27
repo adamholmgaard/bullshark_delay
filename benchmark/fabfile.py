@@ -15,7 +15,7 @@ from benchmark.remote import Bench, BenchError
 def local(ctx, debug=True):
     ''' Run benchmarks on localhost '''
     bench_params = {
-        'faults': 0,
+        'faults': 1,
         'nodes': 4,
         'workers': 1,
         'rate': 50_000,
@@ -40,17 +40,17 @@ def local(ctx, debug=True):
 
 @task
 def repeatlocal(ctx):
-    duration = 20 # seconds
-    repeats = 4
+    duration = 60 # seconds
+    repeats = 10
 
-    delays = [400, 700, 1000]
-    parties = [4, 10]
+    corruptions = [1, 2, 3]
+    parties = [10, 13]
 
     for ps in parties:
-        for delay in delays:
+        for c in corruptions:
             for i in range(repeats):
                 bench_params = {
-                    'faults': 0,
+                    'faults': c,
                     'nodes': ps,
                     'workers': 1,
                     'rate': 50_000,
@@ -60,19 +60,19 @@ def repeatlocal(ctx):
                 node_params = {
                     "gc_depth": 50,
                     'header_size': 50,  # bytes
-                    'max_header_delay': delay,  # ms
+                    'max_header_delay': 600,  # ms
                     'sync_retry_delay': 10_000,  # ms
                     'sync_retry_nodes': 3,  # number of nodes
                     'batch_size': 500_000,  # bytes
                     'max_batch_delay': 200  # ms
                 }
 
-                print(str(delay) + 'ms, n = ' + str(ps) + ' [' + '*'*i + '-'*(repeats-i) + ']')
+                print('n = ' + str(ps) + ', c= ' + str(c) +  ' [' + '*'*i + '-'*(repeats-i) + ']')
 
                 try:
                     ret = LocalBench(bench_params, node_params).run(False)
                     print(ret.result())
-                    ret.print(join(PathMaker.results_path(), f"bench-bs-{delay}-{ps}.txt"))
+                    ret.print(join(PathMaker.results_path(), f"bench-bs-{c}-{ps}.txt"))
 
                 except BenchError as e:
                     Print.error(e)
